@@ -1,0 +1,28 @@
+{
+  "name": "PureScriptConf2017-composing-cofree-comondas",
+  "version": "0.0.1",
+  "description": "talk about composing coffree comonads",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server ./"
+  },
+  "keywords": [
+    "functional",
+    "programming",
+    "fp",
+    "purescript",
+    "javascript",
+    "composition",
+    "talk"
+  ],
+  "author": "Marcin Szamotulski",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "markpress": "^4.0.0",
+    "remark": "^7.0.1"
+  },
+  "dependencies": {
+    "http-server": "^0.10.0"
+  }
+}

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+  <head>
+    <link rel="stylesheet" href="css/reveal.css">
+    <!-- <link rel="stylesheet" href="css/solarized-light.css"> -->
+    <!-- <link rel="stylesheet" href="css/theme/solarized.css"> -->
+    <link rel="stylesheet" href="css/theme/night.css">
+    <link rel="stylesheet" href="css/arta.css">
+    <link rel="stylesheet" href="css/theme/custom.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+	<section>
+	  <h1>Composing Cofree Comonads</h1>
+	  <h6>An introduction to PureScript</h6>
+	  <p class="center"><a target="_blank" href="https://purescript.org"><small>https://purescript.org</small></a></p>
+	  <p class="center">
+	    Marcin Szamotulski, PhD
+	    <div class="center"><a target="_blank" href="https://github.com/coot">github: @coot</a></div>
+	    <div class="center"><a target="_blank" href="https://twitter.com/me_coot">twitter: @me_coot</a></div>
+	  </p>
+	</section>
+	<section>
+	  <h1>PureScript type system</h1>
+	  <h2>part i</h2>
+	</section>
+	<section>
+	  <h2>PureScript</h2>
+	  <p>"A strongly-typed functional programming language that compiles to JavaScript"</p>
+	  <p>Heavily inspired by Haskell.</p>
+	  <ul style="font-size: .8em">
+	    <li>Type inference</li>
+	    <li>Records</li>
+	    <li>Row polymorphism</li>
+	    <li>Newtypes and type aliases</li>
+	    <li>Polymorphic types</li>
+	    <li>Higher-kinded types</li>
+	    <li>Rank N Types</li>
+	    <li>Multiparameter type classes &amp; constrained types</li>
+	    <li>Functional dependencies</li>
+	    <li>Kind system with kind inference</li>
+	  </ul>
+	</section>
+	<section>
+	  <h1>Records</h1>
+	  <pre><code class="language-haskell">data Record :: # Type -> Type
+	  </code></pre>
+	  <pre><code class="language-haskell">a :: { a :: Int, b :: String }
+a = { a: 1, b: "" }
+	  </code></pre>
+	  <pre><code class="language-haskell">-- in psci
+>:k { a :: Int, b :: String }
+Type
+>:k ( a :: Int, b :: String )
+# Type
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Row polymorphism</h1>
+	  <h3>extensible records</h3>
+	  <pre><code class="language-haskell">
+add :: forall r. Int -> { a :: Int | r } - { a :: Int | r }
+add x r@{ a }  = r { a = a + x}
+	  </code></pre>
+	    <ul>
+	      <li>rows are association list from labels to types</li>
+	      <li>rows can have duplicate labels</li>
+	      <li>unification of rows ignores order of different labels, but preserves order of duplicates</li>
+	      <li><pre class="inline"><code>row of k</code></pre><span> is a new kind for every kind </span><pre class="inline"><code>k</code></pre></li>
+	    </ul>
+	</section>
+	<section>
+	  <h1>Row polymorphism</h1>
+	  <h3>extensible effects</h3>
+	  <pre><code class="language-haskell">
+main :: forall e. Eff
+  ( console :: CONSOLE
+  , http :: HTTP
+  , fs :: FS
+  , buffer :: BUFFER
+  , avar :: AVAR
+  , redox :: RedoxStore
+      ( read :: ReadRedox
+      , write :: WriteRedox
+      , subscribe :: SubscribeRedox
+      , create :: CreateRedox )
+  | e )
+  Unit
+main = do
+  log "starting..."
+  store <- mkStore initialState
+  runServer defaultOptionsWithLogging {} (app store)
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Ranked N Types</h1>
+	  <pre><code class="language-haskell">foreign import data Exists :: (Type -> Type) -> Type
+
+mkExists :: forall f a. f a -> Exists f
+mkExists = unsafeCoerce
+
+runExists :: forall f r. (forall a. f a -> r) -> Exists f -> r
+runExists = unsafeCoerce
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Multi-parameter Type Classes</h1>
+	  <pre><code class="language-haskell">
+class Monad m <= MonadState s m where
+  get :: m s
+  put :: s -> m Unit
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Functional Dependencies</h1>
+	  <pre><code class="language-haskell">
+class RowToList (row :: # Type)
+                (list :: RowList) |
+                row -> list
+	  </code></pre>
+	  <p>Type level prolog</p>
+	  <pre><code class="language-haskell">
+data Z
+data S n
+
+class Add n m r | n m -> r
+
+instance addZ :: Add Z Z Z
+instance addS :: Add n m r => Add (S n) m (S r)
+instance addS' :: Add n m r => Add n (S m) (S r)
+	  </code></pre>
+	</section>
+	<section>
+	  <small><pre><code class="language-haskell">-- | in psci
+> f :: Add (S Z) (S Z) (S (S Z)) => Int
+> f = 1
+> f
+1
+> g :: Add (S Z) (S Z) (S Z) => Int
+> g = 1
+> g
+Error found:
+in module $PSCI
+at  line 1, column 1 - line 1, column 1
+
+  Could not match type
+        
+    S t0
+        
+  with type
+     
+    Z
+     
+
+while solving type class constraint
+                 
+  $PSCI.Add Z    
+            (S Z)
+            Z    
+	  </code></pre></small>
+	  <p><small>
+	    Some fancy examples:
+	    <ul>
+	      <li><a href="https://github.com/purescript/purescript-typelevel-prelude">type level prelude</a>: <small>rows, symbols, type level booleans</small></li>
+	      <li><a href="https://github.com/LiamGoodacre/purescript-type-map">type level lists and maps</a></li>
+	      <li><a href="https://github.com/LiamGoodacre/purescript-type-lang">type level lambda caluculus</a></li>
+	    </ul>
+	  </small></p>
+	</section>
+	<section>
+	  <h1>Composing Cofree interpreters</h1>
+	  <h2>part ii</h2>
+	</section>
+	<section>
+	  <h1>Free monad</h1>
+	  <h3>definition</h3>
+	  <pre><code class="language-haskell">data Free f a
+  = Pure a 
+  | Free f (Free f a)
+
+derive instance functorFree :: Functor (Free f)
+
+instance bindFree :: Bind (Free f) where
+  bind (Pure a) f = f a
+  bind (Free m) f = (Free (f <$> m))
+
+instance applyFree :: Apply (Free f) where
+  apply = ap
+
+instance applicativeFree :: Applicative (Free f) where
+  pure a = Pure a
+
+instance monadFree :: Monad (Free f)
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Comonad</h1>
+	  <h3>definition</h3>
+	    <pre><code class="language-haskell">-- | Associativity: `extend f <<< extend g = extend (f <<< extend g)`
+class Functor w <= Extend w where
+  extend :: forall b a. (w a -> b) -> w a -> w b</code></pre>
+
+	  <pre><code class="language-haskell">-- | Forwards co-Kleisli composition.
+composeCoKleisli
+  :: forall b a w c
+   . Extend w
+  => (w a -> b)
+  -> (w b -> c)
+  -> w a -> c
+composeCoKleisli f g w = g (f <<= w)
+
+-- | Duplicate a comonadic context.
+duplicate
+  :: forall a w
+   . Extend w
+  => w a -> w (w a)
+duplicate = extend id
+	    </code></pre>
+	    <pre><code class="language-haskell">-- | Left Identity: `extract <<= xs = xs`
+-- | Right Identity: `extract (f <<= xs) = f xs`
+class Extend w <= Comonad w where
+  extract :: forall a. w a -> a
+	    </code></pre>
+	</section>
+	<section>
+	  <h1>Stream Comonad</h1>
+	    <pre><code class="language-haskell">data Stream a = Cons a (Lazy (Stream a))
+
+derive instance functorStream :: Functor Stream
+
+instance extendStream :: Extend Stream where
+  extend f s@(Cons a r) = Cons (f s) (extend f <$> r)
+
+instance comonadStream :: Comonad Stream where
+  extract (Cons a _) = a
+
+smooth :: Int -> Stream Number -> Stream Number
+smooth n s = extend (avN n) s
+  where
+    sumN :: Int -> Stream Number -> Number
+    sumN 0 _ = 0.0
+    sumN n (Cons a r) = a + (sumN (n - 1) (force r))
+
+    avN :: Int -> Stream Number -> Number
+    avN n s = (sumN n s) / (toNumber n)
+	    </code></pre>
+	</section>
+	<section>
+	  <h1>Cofree comonad</h1>
+	  Given a functor `f` we can build a cofree comonad
+	  <pre><code class="language-haskell">
+data Cofree f a = Cofree a (Lazy (f (Cofree f a)))
+
+mkCofree :: forall f a. a -> f (Cofree f a) -> Cofree f a
+mkCofree a t = Cofree a (defer \_ -> t)
+
+infixr 5 mkCofree as :<
+
+-- | Returns the label for a tree.
+head :: forall f a. Cofree f a -> a
+head (Cofree h _) = h
+
+instance functorCofree :: Functor f => Functor (Cofree f) where
+  map f = loop where
+    loop fa@(Cofree head _tail)
+      = Cofree (f head) ((map loop) <$> _tail)
+
+instance extendCofree :: Functor f => Extend (Cofree f) where
+  extend f = loop
+    where
+    loop fa@(Cofree _ _tail)
+      = Cofree (f fa) ((map loop) <$> _tail)
+
+instance comonadCofree :: Functor f => Comonad (Cofree f) where
+  extract = head
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Composing interpreters</h1>
+	  <h4><a class="center" href="http://try.purescript.org/?gist=b31f48d16ad43cec8c0afcd470ac5add" target="_blank">live demo</a></h4>
+	</section>
+	<section>
+
+	  <pre><code class="language-haskell">unfoldCofree
+  :: forall f s a
+   . Functor f
+  => (s -> a)
+  -> (s -> f s)
+  -> s
+  -> Cofree f a
+unfoldCofree e n s =
+  Cofree (e s) (defer \_ -> unfoldCofree e n <$> n s)
+	  </code></pre>
+	  <pre><code class="language-haskell">explore
+  :: forall f g a b
+   . Functor f
+  => Functor g
+  => (forall x y. f (x -> y) -> g x -> y)
+  -> Free f (a -> b)
+  -> Cofree g a
+  -> b
+explore pair m w =
+    case runState (runFreeM step m) w of
+      Tuple f cof -> f (extract cof)
+  where
+    step
+      :: f (Free f (a -> b))
+      -> State (Cofree g a) (Free f (a -> b))
+    step ff = state \cof -> pair (map Tuple ff) (tail cof)
+	  </code></pre>
+	</section>
+	<section>
+	<pre><code class="language-haskell">newtype Coproduct f g a = Coproduct (Either (f a) (g a))
+
+-- | Left injection
+left :: forall f g a. f a -> Coproduct f g a
+left fa = Coproduct (Left fa)
+
+-- | Right injection
+right :: forall f g a. g a -> Coproduct f g a
+right ga = Coproduct (Right ga)
+	</code></pre>
+	<pre><code class="language-haskell">newtype Product f g a = Product (Tuple (f a) (g a))
+
+-- | Create a product.
+product :: forall f g a. f a -> g a -> Product f g a
+product fa ga = Product (Tuple fa ga)
+	</code></pre>
+	</section>
+	<section>
+	  <pre><code class="language-haskell">-- | Returns the label for a tree.
+head :: forall f a. Cofree f a -> a
+head (Cofree h _) = h
+
+-- | Returns the "subtrees" of a tree.
+tail :: forall f a. Cofree f a -> f (Cofree f a)
+tail (Cofree _ t) = force t
+
+mkCofree :: forall f a. a -> f (Cofree f a) -> Cofree f a
+mkCofree a t = Cofree a (defer \_ -> t)
+	  </code></pre>
+	</section>
+	<section>
+	  <h1>Composing Streems</h1>
+	  <p class="center">
+	    <a href="http://try.purescript.org/?gist=6bac5a9839403f65c40e8494031c9a00" target="_blank">
+	      live demo
+	    </a>
+	  </p>
+	</section>
+      </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+	controls: false,
+	history: true,
+	slideNumber: true,
+	maxScale: 1,
+	height: 900,
+	dependencies: [
+	  {
+	    src: 'plugin/highlight/highlight.js',
+	    "async": true,
+	    callback: function() {
+	      hljs.initHighlightingOnLoad();
+	    }
+	  },
+	],
+      });
+    </script>
+  </body>
+</html>
