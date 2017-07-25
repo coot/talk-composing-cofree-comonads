@@ -39,11 +39,14 @@ doc = html ! lang "en" $ do
               small $ text "https://purescript.org"
           p ! className "center" $ do
             text "Marcin Szamotulski, PhD"
+            div ! className "center gravicus" $
+              a ! target "_blank" ! href "http://gravicus.com/" $
+                text "gravicus.com"
             div ! className "center" $
-              a ! target "_blank" ! href "https://github.com/coot" $
+              a ! target "_blank" ! href "https://github.com/coot" $ small $
                 text "github: @coot"
             div ! className "center" $
-              a ! target "_blank" ! href "https://twitter.com/me_coot" $
+              a ! target "_blank" ! href "https://twitter.com/me_coot" $ small $
                 text "twitter: @me_coot"
         pureScriptIntro
         composingCofreePart

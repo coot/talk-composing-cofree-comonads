@@ -85,3 +85,9 @@
   width: 100%;
   text-align: center;
 }
+
+.reveal .gravicus {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
