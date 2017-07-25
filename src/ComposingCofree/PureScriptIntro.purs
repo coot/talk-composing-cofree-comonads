@@ -16,8 +16,7 @@ pureScriptIntro = do
     p $ text "Heavily inspired by Haskell."
     ul ! style "font-size: .8em" $ do
       li $ text "Type inference"
-      li $ text "Records"
-      li $ text "Row polymorphism"
+      li $ text "Records and row polymorphism"
       li $ text "Newtypes and type aliases"
       li $ text "Polymorphic types"
       li $ text "Higher-kinded types"
@@ -28,8 +27,12 @@ pureScriptIntro = do
   section $ do
     h1 $ text "Records"
     pre $ code ! className "language-haskell" $ text "data Record :: # Type -> Type"
-    pre $ code ! className "language-haskell" $ text """a :: { a :: Int, b :: String }
-a = { a: 1, b: "" }"""
+    pre $ code ! className "language-haskell" $ text """a :: Record ( a :: Int, b :: String )
+a = { a: 1, b: "" }
+
+b :: { a :: Int, b :: String }
+b = { a: 2, b: "a" }
+"""
     pre $ code ! className "language-haskell" $ text """-- in psci
 >:k { a :: Int, b :: String }
 Type
