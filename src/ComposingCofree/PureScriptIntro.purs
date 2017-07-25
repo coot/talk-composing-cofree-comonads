@@ -110,7 +110,7 @@ class Pred n m | m -> n
 instance predInst :: (Succ x y) => Pred y x
 
 class Gt x y
-instance gtpp :: (Pred x xp, Pred y yp, GtEq xp yp) => GtEq x y
+instance gtpp :: (Pred x xp, Pred y yp, Gt xp yp) => Gt x y
 instance gt :: Gt (S x) Z"""
   section $ do
     small $ do

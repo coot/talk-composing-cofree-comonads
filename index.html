@@ -52,7 +52,7 @@ class Pred n m | m -> n
 instance predInst :: (Succ x y) => Pred y x
 
 class Gt x y
-instance gtpp :: (Pred x xp, Pred y yp, GtEq xp yp) => GtEq x y
+instance gtpp :: (Pred x xp, Pred y yp, Gt xp yp) => Gt x y
 instance gt :: Gt (S x) Z</code></pre></section><section><small><pre><code class="language-haskell">-- | in psci
 > true :: Gt (S (S Z)) (S Z)  => Boolean
 true
