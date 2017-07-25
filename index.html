@@ -123,40 +123,47 @@ class RowToList (row :: # Type)
 data Z
 data S n
 
-class Add n m r | n m -> r
+class Succ n m | m -> n
+instance succInst :: Succ x (S x)
 
-instance addZ :: Add Z Z Z
-instance addS :: Add n m r => Add (S n) m (S r)
-instance addS' :: Add n m r => Add n (S m) (S r)
+class Pred n m | m -> n
+instance predInst :: (Succ x y) => Pred y x
+
+class Gt x y
+instance gtpp :: (Pred x xp, Pred y yp, GtEq xp yp) => GtEq x y
+instance gt :: Gt (S x) Z
 	  </code></pre>
 	</section>
 	<section>
 	  <small><pre><code class="language-haskell">-- | in psci
-> f :: Add (S Z) (S Z) (S (S Z)) => Int
-> f = 1
-> f
-1
-> g :: Add (S Z) (S Z) (S Z) => Int
-> g = 1
-> g
+> true :: Gt (S (S Z)) (S Z)  => Boolean
+true
+> g :: Gt (S (S Z)) (S (S Z)) => Boolean
+> g = true
 Error found:
 in module $PSCI
 at  line 1, column 1 - line 1, column 1
 
-  Could not match type
-        
-    S t0
-        
-  with type
-     
-    Z
-     
+  Type class instance for
+		
+    Main.Succ t1
+	      t0
+		
+  is possibly infinite.
 
 while solving type class constraint
-                 
-  $PSCI.Add Z    
-            (S Z)
-            Z    
+	      
+  Main.Pred t0
+	    t1
+	      
+while inferring the type of g
+in value declaration it
+
+where t0 is an unknown type
+      t1 is an unknown type
+
+See https://github.com/purescript/documentation/blob/master/errors/PossiblyInfiniteInstance.md for more information,
+or to contribute content related to this error.
 	  </code></pre></small>
 	  <p><small>
 	    Some fancy examples:
