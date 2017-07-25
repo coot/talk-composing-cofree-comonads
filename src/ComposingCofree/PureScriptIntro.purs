@@ -56,23 +56,25 @@ add x r@{ a }  = r { a = a + x}"""
     h1 $ text "Row polymorphism"
     h3 $ text "extensible effects"
     pre $ code ! className "language-haskell" $ text """
-main :: forall e. Eff
-( console :: CONSOLE
-, http :: HTTP
-, fs :: FS
-, buffer :: BUFFER
-, avar :: AVAR
-, redox :: RedoxStore
-( read :: ReadRedox
-, write :: WriteRedox
-, subscribe :: SubscribeRedox
-, create :: CreateRedox )
-| e )
-Unit
+main
+  :: forall e
+   . Eff
+      ( console :: CONSOLE
+      , http :: HTTP
+      , fs :: FS
+      , buffer :: BUFFER
+      , avar :: AVAR
+      , redox :: RedoxStore
+        ( read :: ReadRedox
+        , write :: WriteRedox
+        , subscribe :: SubscribeRedox
+        , create :: CreateRedox )
+      | e )
+  Unit
 main = do
-log "starting..."
-store <- mkStore initialState
-runServer defaultOptionsWithLogging {} (app store)"""
+  log "starting..."
+  store <- mkStore initialState
+  runServer defaultOptionsWithLogging {} (app store)"""
   section $ do
     h1 $ text "Ranked N Types"
     pre $ code ! className "language-haskell" $ text """foreign import data Exists :: (Type -> Type) -> Type
@@ -87,15 +89,16 @@ runExists = unsafeCoerce"""
     h1 $ text "Multi-parameter Type Classes"
     pre $ code ! className "language-haskell" $ text """
 class Monad m <= MonadState s m where
-get :: m s
-put :: s -> m Unit"""
+  get :: m s
+  put :: s -> m Unit"""
   section $ do
     h1 $ text "Functional Dependencies"
     pre $ code ! className "language-haskell" $ text """
-class RowToList (row :: # Type)
-          (list :: RowList) |
-          row -> list"""
-    p $ text "Type level prolog"
+class RowToList
+        (row :: # Type)
+        (list :: RowList)
+        | row -> list"""
+    p $ text "type level prolog"
     pre $ code ! className "language-haskell" $ text """
 data Z
 data S n
@@ -114,8 +117,7 @@ instance gt :: Gt (S x) Z"""
       pre $ code ! className "language-haskell" $ text """-- | in psci
 > true :: Gt (S (S Z)) (S Z)  => Boolean
 true
-> g :: Gt (S (S Z)) (S (S Z)) => Boolean
-> g = true
+> true :: Gt (S (S Z)) (S (S Z)) => Boolean
 Error found:
 in module $PSCI
 at  line 1, column 1 - line 1, column 1
