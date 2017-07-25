@@ -1,12 +1,12 @@
 module Main where
 
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Free (foldFree)
 import Control.Monad.State (State, execState, state)
 import Data.CatList (CatList)
-import Data.Foldable (fold, foldl)
+import Data.Foldable (fold)
 import Data.Monoid (append)
 import Data.String (length)
 import Data.Tuple (Tuple(..))
@@ -14,9 +14,9 @@ import Node.Buffer (BUFFER, fromString)
 import Node.Encoding (Encoding(..))
 import Node.FS (FS)
 import Node.FS.Sync (writeFile)
-import Prelude (type (~>), Unit, bind, discard, map, pure, ($), (/=), (<<<), (<>), (==), (>), (>>>), (||))
-import Text.Smolder.HTML hiding (style)
-import Text.Smolder.HTML.Attributes (className, defer, href, lang, rel, src, style, target)
+import Prelude (type (~>), Unit, bind, discard, map, pure, ($), (<<<), (<>), (==), (>), (||))
+import Text.Smolder.HTML hiding (style, map)
+import Text.Smolder.HTML.Attributes (className, href, lang, rel, src, target)
 import Text.Smolder.Markup (Attr(..), Markup, MarkupM(..), text, (!))
 import ComposingCofree.PureScriptIntro (pureScriptIntro)
 import ComposingCofree.ComposingCofreePart (composingCofreePart)
@@ -47,6 +47,13 @@ doc = html ! lang "en" $ do
                 text "twitter: @me_coot"
         pureScriptIntro
         composingCofreePart
+        section $ do
+          h1 $ text "Thank You"
+          p ! className "footer" $ do
+            text "written with "
+            a ! href "https://github.com/bodil/purescript-smolder" $ text "purescript-smolder"
+            text " and "
+            a ! href "https://github.com/hakimel/reveal.js" $ text "reveal.js"
         script ! src "lib/js/head.min.js" $ text ""
         script ! src "lib/js/head.min.js" $ text ""
         script ! src "js/reveal.js" $ text ""

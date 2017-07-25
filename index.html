@@ -194,7 +194,7 @@ or to contribute content related to this error.</code></pre>Some fancy examples:
   tail (Cofree _ t) = force t
 
   mkCofree :: forall f a. a -> f (Cofree f a) -> Cofree f a
-  mkCofree a t = Cofree a (defer \_ -> t)</code></pre></section><section><h1>Composing Streams</h1><p class="center"><a href="http://try.purescript.org/?gist=6bac5a9839403f65c40e8494031c9a00" target="_blank">live demo</a></p></section><script src="lib/js/head.min.js"></script><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script>
+  mkCofree a t = Cofree a (defer \_ -> t)</code></pre></section><section><h1>Composing Streams</h1><p class="center"><a href="http://try.purescript.org/?gist=6bac5a9839403f65c40e8494031c9a00" target="_blank">live demo</a></p></section><section><h1>Thank You</h1><p class="footer">written with <a href="https://github.com/bodil/purescript-smolder">purescript-smolder</a> and <a href="https://github.com/hakimel/reveal.js">reveal.js</a></p></section><script src="lib/js/head.min.js"></script><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script>
 Reveal.initialize({
   controls: false,
   history: true,
