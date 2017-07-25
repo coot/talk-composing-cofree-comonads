@@ -142,11 +142,11 @@ t1 is an unknown type
 
 See https://github.com/purescript/documentation/blob/master/errors/PossiblyInfiniteInstance.md for more information,
 or to contribute content related to this error."""
-      text "Some fancy examples:"
+      div $ text "Some examples:"
       ul $ do
         li $ do
-          a ! href "https://github.com/purescript/purescript-typelevel-prelude" $ text "type level prelude:"
-          small $ text "rows, symbols, type level booleans"
+          a ! href "https://github.com/purescript/purescript-typelevel-prelude" $ text "type level prelude: "
+          text " rows, symbols, type level booleans"
         li $ do
           a ! href "https://github.com/LiamGoodacre/purescript-type-map" $ text "type level lists and maps"
         li $ a ! href "https://github.com/LiamGoodacre/purescript-type-lang" $ text "type level lambda caluculus"
