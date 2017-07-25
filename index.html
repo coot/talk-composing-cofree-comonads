@@ -10,23 +10,25 @@ Type
 # Type</code></pre></section><section><h1>Row polymorphism</h1><h3>extensible records</h3><pre><code class="language-haskell">
 add :: forall r. Int -> { a :: Int | r } - { a :: Int | r }
 add x r@{ a }  = r { a = a + x}</code></pre><ul><li>rows are association list from labels to types</li><li>rows can have duplicate labels</li><li>unification of rows ignores order of different labels, but preserves order of duplicates</li><li><pre class="inline"><code>row of k</code><span> is a new kind for every kind </span><pre class="inline"><code>k</code></pre></pre></li></ul></section><section><h1>Row polymorphism</h1><h3>extensible effects</h3><pre><code class="language-haskell">
-main :: forall e. Eff
-( console :: CONSOLE
-, http :: HTTP
-, fs :: FS
-, buffer :: BUFFER
-, avar :: AVAR
-, redox :: RedoxStore
-( read :: ReadRedox
-, write :: WriteRedox
-, subscribe :: SubscribeRedox
-, create :: CreateRedox )
-| e )
-Unit
+main
+  :: forall e
+   . Eff
+      ( console :: CONSOLE
+      , http :: HTTP
+      , fs :: FS
+      , buffer :: BUFFER
+      , avar :: AVAR
+      , redox :: RedoxStore
+        ( read :: ReadRedox
+        , write :: WriteRedox
+        , subscribe :: SubscribeRedox
+        , create :: CreateRedox )
+      | e )
+  Unit
 main = do
-log "starting..."
-store <- mkStore initialState
-runServer defaultOptionsWithLogging {} (app store)</code></pre></section><section><h1>Ranked N Types</h1><pre><code class="language-haskell">foreign import data Exists :: (Type -> Type) -> Type
+  log "starting..."
+  store <- mkStore initialState
+  runServer defaultOptionsWithLogging {} (app store)</code></pre></section><section><h1>Ranked N Types</h1><pre><code class="language-haskell">foreign import data Exists :: (Type -> Type) -> Type
 
 mkExists :: forall f a. f a -> Exists f
 mkExists = unsafeCoerce
@@ -34,11 +36,12 @@ mkExists = unsafeCoerce
 runExists :: forall f r. (forall a. f a -> r) -> Exists f -> r
 runExists = unsafeCoerce</code></pre></section><section><h1>Multi-parameter Type Classes</h1><pre><code class="language-haskell">
 class Monad m <= MonadState s m where
-get :: m s
-put :: s -> m Unit</code></pre></section><section><h1>Functional Dependencies</h1><pre><code class="language-haskell">
-class RowToList (row :: # Type)
-          (list :: RowList) |
-          row -> list</code></pre><p>Type level prolog</p><pre><code class="language-haskell">
+  get :: m s
+  put :: s -> m Unit</code></pre></section><section><h1>Functional Dependencies</h1><pre><code class="language-haskell">
+class RowToList
+        (row :: # Type)
+        (list :: RowList)
+        | row -> list</code></pre><p>type level prolog</p><pre><code class="language-haskell">
 data Z
 data S n
 
@@ -53,8 +56,7 @@ instance gtpp :: (Pred x xp, Pred y yp, GtEq xp yp) => GtEq x y
 instance gt :: Gt (S x) Z</code></pre></section><section><small><pre><code class="language-haskell">-- | in psci
 > true :: Gt (S (S Z)) (S Z)  => Boolean
 true
-> g :: Gt (S (S Z)) (S (S Z)) => Boolean
-> g = true
+> true :: Gt (S (S Z)) (S (S Z)) => Boolean
 Error found:
 in module $PSCI
 at  line 1, column 1 - line 1, column 1
@@ -78,7 +80,7 @@ where t0 is an unknown type
 t1 is an unknown type
 
 See https://github.com/purescript/documentation/blob/master/errors/PossiblyInfiniteInstance.md for more information,
-or to contribute content related to this error.</code></pre>Some fancy examples:<ul><li><a href="https://github.com/purescript/purescript-typelevel-prelude">type level prelude:</a><small>rows, symbols, type level booleans</small></li><li><a href="https://github.com/LiamGoodacre/purescript-type-map">type level lists and maps</a></li><li><a href="https://github.com/LiamGoodacre/purescript-type-lang">type level lambda caluculus</a></li></ul></small></section><section><h1>Composing Cofree interpreters</h1><h2>part ii</h2></section><section><h1>Free monad</h1><h3>definition</h3><pre><code class="language-haskell">data Free f a
+or to contribute content related to this error.</code></pre><div>Some examples:</div><ul><li><a href="https://github.com/purescript/purescript-typelevel-prelude">type level prelude: </a> rows, symbols, type level booleans</li><li><a href="https://github.com/LiamGoodacre/purescript-type-map">type level lists and maps</a></li><li><a href="https://github.com/LiamGoodacre/purescript-type-lang">type level lambda caluculus</a></li></ul></small></section><section><h1>Composing Cofree interpreters</h1><h2>part ii</h2></section><section><h1>Free monad</h1><h3>definition</h3><pre><code class="language-haskell">data Free f a
   = Pure a 
   | Free f (Free f a)
 
